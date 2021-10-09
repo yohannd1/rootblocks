@@ -9,7 +9,7 @@ use std::sync::mpsc;
 use std::thread::{self, JoinHandle};
 use std::time::Duration;
 
-use block::updater::{UpdaterConfig, XRootUpdater};
+use block::updater::{UpdaterConfig, WriteUpdater};
 use block::{Block, BlockManager, MessagePasser};
 
 const DEFAULT_INTERVAL: Duration = Duration::from_secs(10);
@@ -18,14 +18,16 @@ fn main() {
     let blocks: Vec<Box<dyn Block>> = vec![
         Box::new(Ram),
         Box::new(Cpu),
-        Box::new(Battery),
+        // Box::new(Battery),
         Box::new(Volume),
         Box::new(Clock),
     ];
 
-    let mut updater = XRootUpdater::new(UpdaterConfig {
+    let mut stdout = std::io::stdout();
+
+    let mut updater = WriteUpdater::new(&mut stdout, UpdaterConfig {
         prefix: "[ ",
-        postfix: " ]",
+        postfix: " ]\n",
         separator: " | ",
     });
 
@@ -89,41 +91,40 @@ struct Volume;
 
 impl Volume {
     fn get() -> String {
-        let stdout = std::process::Command::new("amixer")
-            .arg("get")
-            .arg("Master")
+        let stdout = std::process::Command::new("dwmblocks-volume")
             .output()
             .unwrap()
             .stdout;
 
         let string = String::from_utf8_lossy(&stdout);
-        let lines = string.split("\n").collect::<Vec<&str>>();
+        string.trim().to_string()
+        // let lines = string.split("\n").collect::<Vec<&str>>();
 
-        let is_on: Option<bool> = match lines[lines.len() - 2].split("[").nth(3).unwrap() {
-            "on]" => Some(true),
-            "off]" => Some(false),
-            _ => None,
-        };
+        // let is_on: Option<bool> = match lines[lines.len() - 2].split("[").nth(3).unwrap() {
+        //     "on]" => Some(true),
+        //     "off]" => Some(false),
+        //     _ => None,
+        // };
 
-        match is_on {
-            Some(true) => {
-                let percentage = lines[lines.len() - 2]
-                    .split("[")
-                    .nth(1)
-                    .unwrap()
-                    .split("]")
-                    .nth(0)
-                    .unwrap();
+        // match is_on {
+        //     Some(true) => {
+        //         let percentage = lines[lines.len() - 2]
+        //             .split("[")
+        //             .nth(1)
+        //             .unwrap()
+        //             .split("]")
+        //             .nth(0)
+        //             .unwrap();
 
-                format!("vol {}", percentage)
-            }
-            Some(false) => {
-                format!("vol OFF")
-            }
-            None => {
-                format!("vol UNK")
-            }
-        }
+        //         format!("vol {}", percentage)
+        //     }
+        //     Some(false) => {
+        //         format!("vol OFF")
+        //     }
+        //     None => {
+        //         format!("vol UNK")
+        //     }
+        // }
     }
 }
 

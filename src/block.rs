@@ -76,11 +76,11 @@ pub mod updater {
             );
 
             XDisplay::open()
-                .unwrap()
+                .expect("X Display unavailable")
                 .default_screen()
                 .root_window()
                 .set_name(&string)
-                .unwrap();
+                .expect("Failed to set name");
         }
     }
 }
