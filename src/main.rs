@@ -185,17 +185,16 @@ make_cmd_block!(
     shell = "sh",
 );
 
-#[allow(dead_code)]
-make_cmd_block!(
-    Swap,
-    r#"free -m | awk 'NR==3 {printf "swap %.0f%%", $3*100/$2 }'"#,
-    interval = DEFAULT_INTERVAL,
-    shell = "sh",
-);
+// make_cmd_block!(
+//     Swap,
+//     r#"free -m | awk 'NR==3 {printf "swap %.0f%%", $3*100/$2 }'"#,
+//     interval = DEFAULT_INTERVAL,
+//     shell = "sh",
+// );
 
 make_cmd_block!(
     Clock,
     r#"date "+%Y-%m-%d %H:%M""#,
-    interval = DEFAULT_INTERVAL,
+    interval = DEFAULT_INTERVAL, // TODO: make a custom block so I can parse %s and get the amount of seconds to sleep once
     shell = "sh",
 );
